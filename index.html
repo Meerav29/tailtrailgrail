@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trail Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+        .leaflet-popup-content-wrapper {
+            background-color: #1f2937;
+            color: #f3f4f6;
+            border-radius: 0.5rem;
+        }
+        .leaflet-popup-content {
+            margin: 1rem;
+        }
+        .leaflet-popup-tip {
+            background: #1f2937;
+        }
+        .leaflet-control-zoom-in, .leaflet-control-zoom-out {
+            background-color: #1f2937 !important;
+            color: #f3f4f6 !important;
+            border-radius: 0.25rem !important;
+        }
+        /* Custom modal styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #1f2937;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg">
+        <div class="container mx-auto px-4 py-4 md:flex md:items-center md:justify-between">
+            <div class="flex items-center justify-between">
+                <a href="#" class="text-2xl font-bold text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 9.168C4.133 8.525 4.506 7.876 5.15 7.677l.743-.232a1 1 0 011.23.96v.05l-.173 1.21a.5.5 0 00.95.32l1.294-2.588a1 1 0 011.788 0l1.294 2.588a.5.5 0 00.95-.32l-.173-1.21a1 1 0 011.23-.96l.743.232c.644.199 1.017.848.818 1.491l-1.6 5.2a1 1 0 01-.949.697H6.881a1 1 0 01-.949-.697l-1.6-5.2z" clip-rule="evenodd" />
+                    </svg>
+                    Trail Tracker
+                </a>
+            </div>
+            <nav class="hidden md:flex flex-col md:flex-row md:items-center">
+                <a href="#" class="mt-2 md:mt-0 md:ml-6 text-gray-300 hover:text-white">Home</a>
+                <a href="#" class="mt-2 md:mt-0 md:ml-6 text-gray-300 hover:text-white">Trails</a>
+                <a href="#" class="mt-2 md:mt-0 md:ml-6 text-gray-300 hover:text-white">Contribute</a>
+                <a href="#" class="mt-2 md:mt-0 md:ml-6 text-gray-300 hover:text-white">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4">
+        <div class="flex flex-col md:flex-row gap-4">
+
+            <!-- Trail List -->
+            <div class="w-full md:w-1/3 bg-gray-800 p-4 rounded-lg shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Nearby Trails</h2>
+                    <button id="get-location-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+                        Use My Location
+                    </button>
+                </div>
+                <div class="mb-4">
+                    <input id="search-bar" type="text" placeholder="Search trails..." class="w-full bg-gray-700 text-white rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div id="trail-list" class="space-y-4 max-h-[65vh] overflow-y-auto">
+                    <!-- Trail items will be injected here by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="w-full md:w-2/3 h-[80vh] bg-gray-800 rounded-lg shadow-lg">
+                <div id="map"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-4">
+        <div class="container mx-auto px-4 py-4 text-center text-gray-400">
+            <p>&copy; 2025 Trail Tracker. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Modal Container -->
+    <div id="modal" class="modal-backdrop hidden"></div>
+
+    <script>
+        // --- MAP INITIALIZATION ---
+        const map = L.map('map').setView([40.7128, -74.0060], 10); // Default to NYC
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // --- SAMPLE TRAIL DATA (North America) ---
+        const trails = [
+            { id: 1, name: "Angel's Landing", location: "Zion National Park, UT", type: "Hiking", difficulty: "Hard", length: "8.7 km", coords: [37.2691, -112.9469], description: "A strenuous hike with chains and steep drop-offs, offering breathtaking panoramic views of Zion Canyon." },
+            { id: 2, name: "The Whole Enchilada", location: "Moab, UT", type: "Biking", difficulty: "Hard", length: "42.1 km", coords: [38.5015, -109.2835], description: "A world-famous, challenging mountain bike trail with varied terrain and epic descents." },
+            { id: 3, name: "Yosemite Valley Loop Trail", location: "Yosemite National Park, CA", type: "Hiking", difficulty: "Easy", length: "20.9 km", coords: [37.7450, -119.5941], description: "A relatively flat trail offering stunning views of Yosemite Falls, El Capitan, and Bridalveil Fall." },
+            { id: 4, name: "Golden Gate Bridge Bike Trail", location: "San Francisco, CA", type: "Biking", difficulty: "Easy", length: "27.4 km", coords: [37.8199, -122.4783], description: "An iconic bike ride across the Golden Gate Bridge to the charming town of Sausalito." },
+            { id: 5, name: "Grinnell Glacier Trail", location: "Glacier National Park, MT", type: "Hiking", difficulty: "Moderate", length: "17.1 km", coords: [48.7959, -113.6610], description: "A stunning hike leading to a glacier and iceberg-filled lake, with abundant wildlife." },
+            { id: 6, name: "Slickrock Bike Trail", location: "Moab, UT", type: "Biking", difficulty: "Hard", length: "16.9 km", coords: [38.5834, -109.5218], description: "A unique and challenging trail on petrified sand dunes, famous for its steep climbs and descents." },
+            { id: 7, name: "Appalachian Trail (section)", location: "Shenandoah National Park, VA", type: "Hiking", difficulty: "Moderate", length: "162 km", coords: [38.5287, -78.4533], description: "A beautiful section of the famous long-distance trail with well-maintained paths and scenic overlooks." },
+            { id: 8, name: "Mount Rainier-Wonderland Trail", location: "Mount Rainier National Park, WA", type: "Hiking", difficulty: "Hard", length: "150 km", coords: [46.8529, -121.7604], description: "An epic, multi-day loop circumnavigating Mount Rainier, showcasing diverse ecosystems." }
+        ];
+
+        // --- UI ELEMENTS ---
+        const trailList = document.getElementById('trail-list');
+        const searchBar = document.getElementById('search-bar');
+        const getLocationBtn = document.getElementById('get-location-btn');
+        const modalContainer = document.getElementById('modal');
+
+        let userLocation = null;
+        let markers = [];
+
+        // --- FUNCTIONS ---
+
+        /**
+         * Renders the list of trails in the sidebar.
+         * @param {Array} trailsToRender - The array of trail objects to display.
+         */
+        function renderTrailList(trailsToRender) {
+            trailList.innerHTML = '';
+            if (trailsToRender.length === 0) {
+                trailList.innerHTML = `<p class="text-gray-400">No trails found.</p>`;
+                return;
+            }
+
+            // If user location is available, calculate distance and sort
+            if (userLocation) {
+                trailsToRender.forEach(trail => {
+                    const trailLatLng = L.latLng(trail.coords);
+                    const distance = userLocation.distanceTo(trailLatLng); // in meters
+                    trail.distance = distance / 1000; // convert to km
+                });
+                trailsToRender.sort((a, b) => a.distance - b.distance);
+            }
+
+            trailsToRender.forEach(trail => {
+                const trailElement = document.createElement('div');
+                trailElement.className = 'bg-gray-700 p-3 rounded-lg cursor-pointer hover:bg-gray-600 transition duration-300';
+                trailElement.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-lg">${trail.name}</h3>
+                        ${trail.distance ? `<span class="text-sm font-semibold text-blue-400">${trail.distance.toFixed(1)} km</span>` : ''}
+                    </div>
+                    <p class="text-sm text-gray-400">${trail.location} - ${trail.type}</p>
+                    <div class="flex justify-between items-center mt-2 text-sm">
+                        <span class="px-2 py-1 rounded-full ${trail.difficulty === 'Easy' ? 'bg-green-600' : trail.difficulty === 'Moderate' ? 'bg-yellow-600' : 'bg-red-600'}">${trail.difficulty}</span>
+                        <span>${trail.length}</span>
+                    </div>
+                `;
+                trailElement.addEventListener('click', () => {
+                    map.setView(trail.coords, 13);
+                    const marker = markers.find(m => m.options.trailId === trail.id);
+                    if (marker) marker.openPopup();
+                });
+                trailList.appendChild(trailElement);
+            });
+        }
+        
+        /**
+         * Creates a custom icon for the map markers.
+         * @param {string} type - The type of trail ('Hiking' or 'Biking').
+         * @returns {L.DivIcon} - A Leaflet DivIcon object.
+         */
+        function createTrailIcon(type) {
+            const iconUrl = type === 'Hiking' 
+                ? `https://placehold.co/32x32/34D399/1F2937?text=%E2%9B%8F%EF%B8%8F` // Hiking boot emoji on green background
+                : `https://placehold.co/32x32/3B82F6/1F2937?text=%F0%9F%9A%B4`;   // Biker emoji on blue background
+            
+            return L.divIcon({
+                html: `<img src="${iconUrl}" alt="${type} icon" style="border-radius: 50%; border: 2px solid #f3f4f6; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">`,
+                className: 'custom-div-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+        }
+
+        /**
+         * Displays a modal with trail details.
+         * @param {object} trail - The trail object to display.
+         */
+        function showTrailModal(trail) {
+            modalContainer.innerHTML = `
+                <div class="modal-content">
+                    <h2 class="text-2xl font-bold mb-2">${trail.name}</h2>
+                    <p class="text-gray-400 mb-4">${trail.location}</p>
+                    <p class="mb-4">${trail.description}</p>
+                    <div class="flex justify-between items-center text-lg mb-6">
+                        <span class="px-3 py-1 rounded-full ${trail.difficulty === 'Easy' ? 'bg-green-600' : trail.difficulty === 'Moderate' ? 'bg-yellow-600' : 'bg-red-600'}">${trail.difficulty}</span>
+                        <span>${trail.length}</span>
+                        <span class="font-semibold">${trail.type}</span>
+                    </div>
+                    <button id="close-modal-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">Close</button>
+                </div>
+            `;
+            modalContainer.classList.remove('hidden');
+            document.getElementById('close-modal-btn').addEventListener('click', () => {
+                modalContainer.classList.add('hidden');
+                modalContainer.innerHTML = '';
+            });
+        }
+        
+        /**
+         * Initializes the map markers and popups.
+         */
+        function initializeMarkers() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+
+            trails.forEach(trail => {
+                const marker = L.marker(trail.coords, { icon: createTrailIcon(trail.type), trailId: trail.id })
+                    .addTo(map)
+                    .bindPopup(`
+                        <div class="text-base font-bold mb-1">${trail.name}</div>
+                        <div class="text-sm text-gray-300">${trail.location}</div>
+                        <button data-trail-id="${trail.id}" class="view-details-btn mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded-md text-xs">View Details</button>
+                    `);
+                markers.push(marker);
+            });
+        }
+
+        // --- EVENT LISTENERS ---
+        searchBar.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredTrails = trails.filter(trail => 
+                trail.name.toLowerCase().includes(searchTerm) ||
+                trail.location.toLowerCase().includes(searchTerm)
+            );
+            renderTrailList(filteredTrails);
+        });
+
+        getLocationBtn.addEventListener('click', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    userLocation = L.latLng(latitude, longitude);
+                    map.setView(userLocation, 13);
+                    L.marker(userLocation, {
+                        icon: L.divIcon({
+                            html: `<div class="w-4 h-4 bg-red-500 rounded-full border-2 border-white"></div>`,
+                            className: 'user-location-icon',
+                            iconSize: [16, 16]
+                        })
+                    }).addTo(map).bindPopup("You are here").openPopup();
+                    renderTrailList(trails); // Re-render list to show distances
+                }, () => {
+                    alert('Could not get your location. Please enable location services.');
+                });
+            } else {
+                alert('Geolocation is not supported by this browser.');
+            }
+        });
+        
+        // Event delegation for "View Details" buttons in popups
+        map.on('popupopen', function(e) {
+            const viewDetailsBtn = e.popup._container.querySelector('.view-details-btn');
+            if (viewDetailsBtn) {
+                viewDetailsBtn.addEventListener('click', function() {
+                    const trailId = parseInt(this.dataset.trailId);
+                    const trail = trails.find(t => t.id === trailId);
+                    if (trail) {
+                        showTrailModal(trail);
+                    }
+                });
+            }
+        });
+
+
+        // --- INITIALIZE APP ---
+        initializeMarkers();
+        renderTrailList(trails);
+
+    </script>
+</body>
+</html>
