@@ -4,193 +4,246 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map Dash</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Leaflet.js CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        /* Custom styles for the application */
         body {
             font-family: 'Inter', sans-serif;
         }
-        #map {
-            height: 100%;
-            width: 100%;
-            border-radius: 0.5rem;
-            position: relative; /* Needed for positioning child elements */
+
+        /* Active state for dashboard buttons */
+        .active {
+            background-color: #2563eb; /* blue-600 */
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.5);
         }
-        .leaflet-popup-content-wrapper {
-            background-color: #1f2937;
-            color: #f3f4f6;
-            border-radius: 0.5rem;
+
+        /* Dark theme customization for Leaflet UI */
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+            background-color: #1f2937; /* gray-800 */
+            color: #f3f4f6; /* gray-100 */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
-        .leaflet-popup-content {
-            margin: 1rem;
-        }
-        .leaflet-popup-tip {
-            background: #1f2937;
-        }
+
         .leaflet-control-zoom-in, .leaflet-control-zoom-out {
-            background-color: #1f2937 !important;
-            color: #f3f4f6 !important;
-            border-radius: 0.25rem !important;
+            background-color: #374151 !important; /* gray-700 */
+            color: #f3f4f6 !important; /* gray-100 */
+            border-radius: 8px !important;
+            border: 1px solid #4b5563; /* gray-600 */
         }
-        .dashboard-btn.active {
-            background-color: #2563eb; /* A nice blue for active state */
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover {
+            background-color: #4b5563 !important; /* gray-600 */
+        }
+        
+        .leaflet-bar a {
+            border-bottom: 1px solid #4b5563 !important; /* gray-600 */
+        }
+
+        /* Custom marker for user location */
+        .user-location-marker {
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+            }
+            100% {
+                transform: scale(0.9);
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+            }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100">
+<body class="bg-gray-900 text-gray-100 flex flex-col min-h-screen">
 
     <!-- Header -->
-    <header class="bg-gray-800 shadow-lg">
-        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-            <a href="#" class="text-2xl font-bold text-white flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2h1a2 2 0 002-2v-1a2 2 0 012-2h1.945M7.884 4.036A9 9 0 1016.116 4.036m-8.232 0a9 9 0 018.232 0" />
-                </svg>
-                Map Dash
-            </a>
-        </div>
+    <header class="bg-gray-800 shadow-md w-full p-4 flex items-center space-x-4">
+        <!-- Globe/Network Icon -->
+        <svg class="w-8 h-8 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+        </svg>
+        <h1 class="text-2xl font-bold tracking-wider">Map Dash</h1>
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto p-4">
-        <div class="flex flex-col md:flex-row gap-4">
-
-            <!-- Control Panel -->
-            <div class="w-full md:w-1/3 bg-gray-800 p-4 rounded-lg shadow-lg">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold">Dashboards</h2>
-                    <button id="get-location-btn" class="bg-gray-700 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded-lg flex items-center text-sm transition-colors duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
-                        My Location
-                    </button>
-                </div>
-                <div id="dashboard-options" class="space-y-3">
-                    <button data-dashboard="weather" class="dashboard-btn w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg flex items-center transition duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>
-                        Real-Time Weather
-                    </button>
-                    <button data-dashboard="satellite" class="dashboard-btn w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg flex items-center transition duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12.552A6.002 6.002 0 0112 6.552a6.002 6.002 0 016.948 6M5 12.552v-3.004A6.002 6.002 0 0112 3.548a6.002 6.002 0 016.948 6.004v3.004M7.524 18.024A6.002 6.002 0 0112 12.024a6.002 6.002 0 014.476 6" /></svg>
-                        Satellite Explorer
-                    </button>
-                    <button data-dashboard="aqi" class="dashboard-btn w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg flex items-center transition duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 15.5 8 15.5 9c1.5-1 2.157-1.343 2.157-1.343a8 8 0 010 11z" /></svg>
-                        Air Quality (AQI)
-                    </button>
-                    <button data-dashboard="storm" class="dashboard-btn w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg flex items-center transition duration-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                        Storm Tracker
-                    </button>
-                </div>
+    <main class="flex-grow container mx-auto p-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        
+        <!-- Left Column: Control Panel -->
+        <aside class="md:col-span-1 lg:col-span-1 bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col space-y-6 h-full">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-semibold">Dashboards</h2>
+                <button id="my-location-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors" title="Find My Location">
+                    <!-- Location Pin Icon -->
+                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                    </svg>
+                </button>
             </div>
 
-            <!-- Map -->
-            <div class="w-full md:w-2/3 h-[80vh] bg-gray-800 rounded-lg shadow-lg">
-                <div id="map"></div>
+            <div id="dashboard-buttons" class="flex flex-col space-y-2">
+                <!-- Real-Time Weather -->
+                <button class="dashboard-btn flex items-center w-full p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-left">
+                    <!-- Cloud Icon -->
+                    <svg class="w-6 h-6 mr-3 text-cyan-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15a4.5 4.5 0 004.5 4.5H18a3.75 3.75 0 001.332-7.257 3 3 0 00-3.758-3.848 5.25 5.25 0 00-10.233 2.33A4.5 4.5 0 002.25 15z" />
+                    </svg>
+                    <span>Real-Time Weather</span>
+                </button>
+                <!-- Satellite Explorer -->
+                <button class="dashboard-btn flex items-center w-full p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-left">
+                    <!-- Satellite Dish Icon -->
+                    <svg class="w-6 h-6 mr-3 text-purple-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.136 12.006a8.25 8.25 0 0113.728 0M1.984 8.974a12 12 0 0119.032 0M12 4.5v.008" />
+                    </svg>
+                    <span>Satellite Explorer</span>
+                </button>
+                <!-- Air Quality (AQI) -->
+                <button class="dashboard-btn flex items-center w-full p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-left">
+                    <!-- Wind/Leaf Icon -->
+                    <svg class="w-6 h-6 mr-3 text-green-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 12C3.375 7.022 7.397 3 12.375 3s9 4.022 9 9-4.022 9-9 9-9-4.022-9-9zM19.125 12a7.125 7.125 0 11-14.25 0 7.125 7.125 0 0114.25 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 11.25s.75-.5 1.5-.5 1.5.5 1.5.5m-3 3.75s.75-.5 1.5-.5 1.5.5 1.5.5" />
+                    </svg>
+                    <span>Air Quality (AQI)</span>
+                </button>
+                <!-- Storm Tracker -->
+                <button class="dashboard-btn flex items-center w-full p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-left">
+                    <!-- Lightning Bolt Icon -->
+                    <svg class="w-6 h-6 mr-3 text-yellow-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                    <span>Storm Tracker</span>
+                </button>
             </div>
+        </aside>
+
+        <!-- Right Column: Map Container -->
+        <div class="md:col-span-2 lg:col-span-3 bg-gray-800 rounded-lg shadow-lg overflow-hidden h-[60vh] md:h-auto">
+            <div id="map" class="w-full h-full"></div>
         </div>
+
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 mt-4">
-        <div class="container mx-auto px-4 py-4 text-center text-gray-400">
-            <p>&copy; 2025 Map Dash. All Rights Reserved.</p>
-        </div>
+    <footer class="bg-gray-800 text-center p-4 mt-auto">
+        <p class="text-sm text-gray-400">&copy; 2025 Map Dash. All Rights Reserved.</p>
     </footer>
 
     <script>
-        // --- MAP INITIALIZATION ---
-        const map = L.map('map').setView([40.7128, -74.0060], 5); // Default to NYC, zoomed out a bit
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- MAP INITIALIZATION ---
+            const map = L.map('map').setView([40.7128, -74.0060], 5);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
 
-        // --- UI ELEMENTS ---
-        const getLocationBtn = document.getElementById('get-location-btn');
-        const dashboardButtons = document.querySelectorAll('.dashboard-btn');
-        let userLocationMarker = null;
-
-        // --- INFO BOX on MAP ---
-        const mapInfoBox = document.createElement('div');
-        mapInfoBox.style.position = 'absolute';
-        mapInfoBox.style.bottom = '10px';
-        mapInfoBox.style.left = '10px';
-        mapInfoBox.style.zIndex = 1000;
-        mapInfoBox.style.backgroundColor = 'rgba(31, 41, 55, 0.85)';
-        mapInfoBox.style.color = 'white';
-        mapInfoBox.style.padding = '10px 15px';
-        mapInfoBox.style.borderRadius = '8px';
-        mapInfoBox.style.maxWidth = '300px';
-        mapInfoBox.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)';
-        mapInfoBox.innerHTML = '<h3 class="font-bold text-lg">Welcome to Map Dash</h3><p class="text-gray-300 text-sm">Select a dashboard from the left to begin.</p>';
-        document.getElementById('map').appendChild(mapInfoBox);
-
-
-        // --- EVENT LISTENERS ---
-        getLocationBtn.addEventListener('click', () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    const { latitude, longitude } = position.coords;
-                    const userLocation = L.latLng(latitude, longitude);
-                    map.setView(userLocation, 13);
-                    
-                    // Remove old marker if it exists
-                    if (userLocationMarker) {
-                        map.removeLayer(userLocationMarker);
-                    }
-                    
-                    // Add a new marker for user location
-                    userLocationMarker = L.marker(userLocation, {
-                        icon: L.divIcon({
-                            html: `<div class="w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></div>`,
-                            className: 'user-location-icon',
-                            iconSize: [16, 16]
-                        })
-                    }).addTo(map).bindPopup("You are here").openPopup();
-
-                }, () => {
-                    alert('Could not get your location. Please enable location services.');
-                });
-            } else {
-                alert('Geolocation is not supported by this browser.');
-            }
-        });
-
-        dashboardButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const dashboardType = button.dataset.dashboard;
-                
-                // Update button styles to show active state
-                dashboardButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                let title = '';
-                let description = 'Functionality for this dashboard is coming soon!';
-
-                switch(dashboardType) {
-                    case 'weather':
-                        title = 'Real-Time Weather';
-                        break;
-                    case 'satellite':
-                        title = 'Satellite Explorer';
-                        break;
-                    case 'aqi':
-                        title = 'Air Quality (AQI)';
-                        break;
-                    case 'storm':
-                        title = 'Storm Tracker';
-                        break;
+            // --- MAP INFO BOX ---
+            const InfoBox = L.Control.extend({
+                onAdd: function(map) {
+                    this._div = L.DomUtil.create('div', 'p-4 rounded-lg shadow-lg text-white');
+                    this._div.style.backgroundColor = 'rgba(31, 41, 55, 0.85)'; // bg-gray-800 with opacity
+                    this.update();
+                    return this._div;
+                },
+                update: function(props) {
+                    this._div.innerHTML = `
+                        <h4 class="font-bold text-lg">${props ? props.title : 'Welcome to Map Dash'}</h4>
+                        <p class="text-sm mt-1">${props ? props.description : 'Select a dashboard from the left to begin.'}</p>
+                    `;
                 }
-                
-                // Update the info box on the map
-                mapInfoBox.innerHTML = `<h3 class="font-bold text-lg">${title}</h3><p class="text-gray-300 text-sm">${description}</p>`;
+            });
+            const infoBox = new InfoBox({ position: 'bottomleft' });
+            infoBox.addTo(map);
+
+            // --- "MY LOCATION" BUTTON LOGIC ---
+            const myLocationBtn = document.getElementById('my-location-btn');
+            let userLocationMarker = null;
+
+            myLocationBtn.addEventListener('click', () => {
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const { latitude, longitude } = position.coords;
+                            map.flyTo([latitude, longitude], 13);
+
+                            // Custom pulsing marker
+                            const customIcon = L.divIcon({
+                                className: 'user-location-marker',
+                                iconSize: [20, 20]
+                            });
+
+                            if (userLocationMarker) {
+                                map.removeLayer(userLocationMarker);
+                            }
+                            
+                            userLocationMarker = L.marker([latitude, longitude], { icon: customIcon })
+                                .addTo(map)
+                                .bindPopup("<b>You are here!</b><br>Accuracy: " + position.coords.accuracy + "m")
+                                .openPopup();
+                        },
+                        (error) => {
+                            // Using a custom modal/alert would be better, but alert is per spec
+                            alert(`Error getting location: ${error.message}`);
+                        },
+                        {
+                            enableHighAccuracy: true
+                        }
+                    );
+                } else {
+                    alert('Geolocation is not supported by your browser.');
+                }
+            });
+
+            // --- DASHBOARD BUTTON LOGIC ---
+            const dashboardButtonsContainer = document.getElementById('dashboard-buttons');
+            const dashboardButtons = dashboardButtonsContainer.querySelectorAll('.dashboard-btn');
+
+            dashboardButtonsContainer.addEventListener('click', (e) => {
+                const clickedButton = e.target.closest('.dashboard-btn');
+                if (!clickedButton) return;
+
+                // Remove active class from all buttons
+                dashboardButtons.forEach(btn => btn.classList.remove('active'));
+
+                // Add active class to the clicked button
+                clickedButton.classList.add('active');
+
+                // Update the info box content
+                const dashboardTitle = clickedButton.querySelector('span').textContent;
+                infoBox.update({
+                    title: dashboardTitle,
+                    description: 'Functionality for this dashboard is coming soon!'
+                });
             });
         });
-
     </script>
 </body>
 </html>
