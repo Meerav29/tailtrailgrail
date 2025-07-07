@@ -16,7 +16,7 @@ function addCloudLayer(map) {
     return map.cloudLayer;
 }
 
-function activateWeather(map, infoBox) {
+function activateWeather(map, infoBox, overlay) {
     const center = map.getCenter();
     fetchWeather(center.lat, center.lng)
         .then(data => {
@@ -24,13 +24,29 @@ function activateWeather(map, infoBox) {
                 const w = data.current_weather;
                 const desc = `Temperature: ${w.temperature}&#8451;, Wind: ${w.windspeed} km/h`;
                 infoBox.update({ title: 'Real-Time Weather', description: desc });
+                if (overlay) {
+                    overlay.innerHTML = desc;
+                    overlay.classList.remove('hidden');
+                }
             } else {
                 infoBox.update({ title: 'Real-Time Weather', description: 'No data available.' });
+                if (overlay) {
+                    overlay.innerHTML = 'No data available.';
+                    overlay.classList.remove('hidden');
+                }
             }
         })
         .catch(() => {
             infoBox.update({ title: 'Real-Time Weather', description: 'Failed to load weather data.' });
+            if (overlay) {
+                overlay.innerHTML = 'Failed to load weather data.';
+                overlay.classList.remove('hidden');
+            }
         });
+
+    if (overlay) {
+        overlay.classList.remove('hidden');
+    }
 
     addCloudLayer(map);
 }

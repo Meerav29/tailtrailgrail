@@ -26,7 +26,7 @@ function showAQIMarker(map, lat, lon, aqi) {
     map.aqiMarker.bindPopup(`AQI: ${aqi}`).openPopup();
 }
 
-function activateAQI(map, infoBox) {
+function activateAQI(map, infoBox, overlay) {
     const center = map.getCenter();
     fetchAQI(center.lat, center.lng)
         .then(data => {
@@ -37,13 +37,29 @@ function activateAQI(map, infoBox) {
                 const desc = `US AQI: ${aqi}, PM2.5: ${pm25} µg/m³, PM10: ${pm10} µg/m³`;
                 infoBox.update({ title: 'Air Quality (AQI)', description: desc });
                 showAQIMarker(map, center.lat, center.lng, aqi);
+                if (overlay) {
+                    overlay.innerHTML = desc;
+                    overlay.classList.remove('hidden');
+                }
             } else {
                 infoBox.update({ title: 'Air Quality (AQI)', description: 'No data available.' });
+                if (overlay) {
+                    overlay.innerHTML = 'No data available.';
+                    overlay.classList.remove('hidden');
+                }
             }
         })
         .catch(() => {
             infoBox.update({ title: 'Air Quality (AQI)', description: 'Failed to load air quality data.' });
+            if (overlay) {
+                overlay.innerHTML = 'Failed to load air quality data.';
+                overlay.classList.remove('hidden');
+            }
         });
+
+    if (overlay) {
+        overlay.classList.remove('hidden');
+    }
 }
 
 window.activateAQI = activateAQI;
