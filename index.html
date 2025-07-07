@@ -155,6 +155,7 @@
         <p class="text-sm text-gray-400">&copy; 2025 Map Dash. All Rights Reserved.</p>
     </footer>
 
+    <script src="weather.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- MAP INITIALIZATION ---
@@ -238,10 +239,15 @@
 
                 // Update the info box content
                 const dashboardTitle = clickedButton.querySelector('span').textContent;
-                infoBox.update({
-                    title: dashboardTitle,
-                    description: 'Functionality for this dashboard is coming soon!'
-                });
+
+                if (dashboardTitle === 'Real-Time Weather') {
+                    activateWeather(map, infoBox);
+                } else {
+                    infoBox.update({
+                        title: dashboardTitle,
+                        description: 'Functionality for this dashboard is coming soon!'
+                    });
+                }
             });
         });
     </script>
