@@ -156,6 +156,7 @@
     </footer>
 
     <script src="weather.js"></script>
+    <script src="aqi.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- MAP INITIALIZATION ---
@@ -242,6 +243,8 @@
 
                 if (dashboardTitle === 'Real-Time Weather') {
                     activateWeather(map, infoBox);
+                } else if (dashboardTitle === 'Air Quality (AQI)') {
+                    activateAQI(map, infoBox);
                 } else {
                     infoBox.update({
                         title: dashboardTitle,
