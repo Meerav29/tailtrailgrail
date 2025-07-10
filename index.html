@@ -160,6 +160,7 @@
 
     <script src="weather.js"></script>
     <script src="aqi.js"></script>
+    <script src="storm.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- MAP INITIALIZATION ---
@@ -256,6 +257,9 @@
                 } else if (dashboardTitle === 'Air Quality (AQI)') {
                     hideOverlay();
                     activateAQI(map, infoBox, overlayEl);
+                } else if (dashboardTitle === 'Storm Tracker') {
+                    hideOverlay();
+                    activateStormTracker(map, infoBox, overlayEl);
                 } else {
                     hideOverlay();
                     infoBox.update({
