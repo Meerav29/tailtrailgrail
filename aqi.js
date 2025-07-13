@@ -1,6 +1,21 @@
 function fetchAQI(lat, lon) {
-    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=us_aqi,pm10,pm2_5`;
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=us_aqi,pm10,pm2_5&timezone=auto`;
     return fetch(url).then(r => r.json());
+}
+
+function getNearestHourIndex(times) {
+    if (!Array.isArray(times) || times.length === 0) return -1;
+    const now = Date.now();
+    let nearest = 0;
+    let minDiff = Infinity;
+    for (let i = 0; i < times.length; i++) {
+        const diff = Math.abs(new Date(times[i]).getTime() - now);
+        if (diff < minDiff) {
+            minDiff = diff;
+            nearest = i;
+        }
+    }
+    return nearest;
 }
 
 function getAQIColor(aqi) {
@@ -30,9 +45,10 @@ function activateAQI(map, infoBox, overlay) {
     const center = map.getCenter();
     fetchAQI(center.lat, center.lng)
         .then(data => {
-            const aqi = data?.hourly?.us_aqi?.[0];
-            const pm25 = data?.hourly?.pm2_5?.[0];
-            const pm10 = data?.hourly?.pm10?.[0];
+            const idx = getNearestHourIndex(data?.hourly?.time);
+            const aqi = data?.hourly?.us_aqi?.[idx];
+            const pm25 = data?.hourly?.pm2_5?.[idx];
+            const pm10 = data?.hourly?.pm10?.[idx];
             if (typeof aqi === 'number') {
                 const desc = `US AQI: ${aqi}, PM2.5: ${pm25} µg/m³, PM10: ${pm10} µg/m³`;
                 infoBox.update({ title: 'Air Quality (AQI)', description: desc });
