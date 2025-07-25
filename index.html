@@ -76,17 +76,39 @@
                 box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
             }
         }
+
+        /* Map fullscreen layout */
+        .map-fullscreen header,
+        .map-fullscreen aside,
+        .map-fullscreen footer {
+            display: none;
+        }
+
+        .map-fullscreen #map-container {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 50;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 flex flex-col min-h-screen">
 
     <!-- Header -->
-    <header class="bg-gray-800 shadow-md w-full p-4 flex items-center space-x-4">
-        <!-- Globe/Network Icon -->
-        <svg class="w-8 h-8 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-        </svg>
-        <h1 class="text-2xl font-bold tracking-wider">Map Dash</h1>
+    <header class="bg-gray-800 shadow-md w-full p-4 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <!-- Globe/Network Icon -->
+            <svg class="w-8 h-8 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
+            </svg>
+            <h1 class="text-2xl font-bold tracking-wider">Map Dash</h1>
+        </div>
+        <button id="fullscreen-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors" title="Toggle Full Screen">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 9V4.5h4.5M15 4.5H19.5V9M4.5 15V19.5h4.5M15 19.5H19.5V15" />
+            </svg>
+        </button>
     </header>
 
     <!-- Main Content -->
@@ -166,11 +188,19 @@
             // --- MAP INITIALIZATION ---
             const map = L.map('map').setView([40.7128, -74.0060], 5);
             const overlayEl = document.getElementById('map-overlay');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
             function hideOverlay() {
                 overlayEl.classList.add('hidden');
             }
 
             map.on('click', hideOverlay);
+
+            function toggleFullScreen() {
+                document.body.classList.toggle('map-fullscreen');
+                map.invalidateSize();
+            }
+
+            fullscreenBtn.addEventListener('click', toggleFullScreen);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
