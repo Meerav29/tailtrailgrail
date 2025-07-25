@@ -76,6 +76,21 @@
                 box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
             }
         }
+
+        /* Map fullscreen layout */
+        .map-fullscreen header,
+        .map-fullscreen aside,
+        .map-fullscreen footer {
+            display: none;
+        }
+
+        .map-fullscreen #map-container {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 50;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 flex flex-col min-h-screen">
@@ -185,9 +200,12 @@
                     document.documentElement.requestFullscreen().catch(err => {
                         console.error(`Error attempting to enable full-screen mode: ${err.message}`);
                     });
+                    document.body.classList.add('map-fullscreen');
                 } else {
                     document.exitFullscreen();
+                    document.body.classList.remove('map-fullscreen');
                 }
+                map.invalidateSize();
             }
 
             fullscreenBtn.addEventListener('click', toggleFullScreen);
