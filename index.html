@@ -126,11 +126,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 9V4.5h4.5M15 4.5H19.5V9M4.5 15V19.5h4.5M15 19.5H19.5V15" />
                         </svg>
                     </button>
-                    <button id="dashboard-toggle-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors" title="Toggle Dashboard">
-                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5M3.75 12h16.5M3.75 18.75h16.5" />
-                        </svg>
-                    </button>
                 </div>
             </div>
 
@@ -196,9 +191,6 @@
             const map = L.map('map').setView([40.7128, -74.0060], 5);
             const overlayEl = document.getElementById('map-overlay');
             const fullscreenBtn = document.getElementById('fullscreen-btn');
-            const dashboardPane = document.getElementById("dashboard-pane");
-            const dashboardToggleBtn = document.getElementById("dashboard-toggle-btn");
-            const mapSection = document.getElementById("map-section");
             function hideOverlay() {
                 overlayEl.classList.add('hidden');
             }
@@ -219,20 +211,7 @@
             }
 
             fullscreenBtn.addEventListener('click', toggleFullScreen);
-            function toggleDashboard() {
-                if (dashboardPane.classList.contains("hidden")) {
-                    dashboardPane.classList.remove("hidden");
-                    mapSection.classList.remove("md:col-span-3", "lg:col-span-4");
-                    mapSection.classList.add("md:col-span-2", "lg:col-span-3");
-                } else {
-                    dashboardPane.classList.add("hidden");
-                    mapSection.classList.remove("md:col-span-2", "lg:col-span-3");
-                    mapSection.classList.add("md:col-span-3", "lg:col-span-4");
-                }
-                map.invalidateSize();
-            }
 
-            dashboardToggleBtn.addEventListener("click", toggleDashboard);
 
             document.addEventListener("fullscreenchange", () => {
                 if (!document.fullscreenElement) {
