@@ -196,7 +196,15 @@
             map.on('click', hideOverlay);
 
             function toggleFullScreen() {
-                document.body.classList.toggle('map-fullscreen');
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+                    });
+                    document.body.classList.add('map-fullscreen');
+                } else {
+                    document.exitFullscreen();
+                    document.body.classList.remove('map-fullscreen');
+                }
                 map.invalidateSize();
             }
 
