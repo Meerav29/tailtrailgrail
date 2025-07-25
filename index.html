@@ -104,16 +104,6 @@
             </svg>
             <h1 class="text-2xl font-bold tracking-wider">Map Dash</h1>
         </div>
-        <button id="fullscreen-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors" title="Toggle Full Screen">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 9V4.5h4.5M15 4.5H19.5V9M4.5 15V19.5h4.5M15 19.5H19.5V15" />
-            </svg>
-        </button>
-        <button id="dashboard-toggle-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors ml-2" title="Toggle Dashboard">
-            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5M3.75 12h16.5M3.75 18.75h16.5" />
-            </svg>
-        </button>
     </header>
 
     <!-- Main Content -->
@@ -123,13 +113,25 @@
         <aside id="dashboard-pane" class="md:col-span-1 lg:col-span-1 bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col space-y-6 h-full">
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold">Dashboards</h2>
-                <button id="my-location-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors" title="Find My Location">
-                    <!-- Location Pin Icon -->
-                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                    </svg>
-                </button>
+                <div class="flex items-center space-x-2">
+                    <button id="my-location-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors" title="Find My Location">
+                        <!-- Location Pin Icon -->
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                        </svg>
+                    </button>
+                    <button id="fullscreen-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors" title="Toggle Full Screen">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 9V4.5h4.5M15 4.5H19.5V9M4.5 15V19.5h4.5M15 19.5H19.5V15" />
+                        </svg>
+                    </button>
+                    <button id="dashboard-toggle-btn" class="bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors" title="Toggle Dashboard">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5M3.75 12h16.5M3.75 18.75h16.5" />
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div id="dashboard-buttons" class="flex flex-col space-y-2">
