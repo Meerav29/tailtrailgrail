@@ -185,6 +185,7 @@
     <script src="weather.js"></script>
     <script src="aqi.js"></script>
     <script src="storm.js"></script>
+    <script src="satellite.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- MAP INITIALIZATION ---
@@ -193,6 +194,7 @@
             const fullscreenBtn = document.getElementById('fullscreen-btn');
             function hideOverlay() {
                 overlayEl.classList.add('hidden');
+                overlayEl.classList.add('pointer-events-none');
             }
 
             map.on('click', hideOverlay);
@@ -310,6 +312,9 @@
                 } else if (dashboardTitle === 'Storm Tracker') {
                     hideOverlay();
                     activateStormTracker(map, infoBox, overlayEl);
+                } else if (dashboardTitle === 'Satellite Explorer') {
+                    hideOverlay();
+                    activateSatelliteExplorer(map, infoBox, overlayEl);
                 } else {
                     hideOverlay();
                     infoBox.update({
