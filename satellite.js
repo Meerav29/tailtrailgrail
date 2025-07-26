@@ -13,7 +13,13 @@ const SATELLITE_LAYERS = {
 
 L.Control.SatelliteLayers = L.Control.extend({
     options: {
-        position: 'topright'
+        position: 'topright',
+        infoBox: null,
+        selected: null
+    },
+
+    initialize: function(options) {
+        L.Util.setOptions(this, options);
     },
 
     onAdd: function(map) {
@@ -32,9 +38,20 @@ L.Control.SatelliteLayers = L.Control.extend({
             const info = SATELLITE_LAYERS[key];
             map.satelliteLayer = L.tileLayer(info.url, { attribution: info.attribution });
             map.satelliteLayer.addTo(map);
+
+            map.selectedSatelliteKey = key;
+            map.satelliteProviderName = info.name;
+            if (this.options.infoBox) {
+                this.options.infoBox.update({ title: 'Satellite Explorer', description: 'Layer: ' + info.name });
+            }
         };
 
         select.addEventListener('change', () => setLayer(select.value));
+
+        // use previously selected key if available
+        if (this.options.selected && SATELLITE_LAYERS[this.options.selected]) {
+            select.value = this.options.selected;
+        }
 
         // initialize first layer
         setLayer(select.value);
@@ -44,13 +61,15 @@ L.Control.SatelliteLayers = L.Control.extend({
 });
 
 function activateSatelliteExplorer(map, infoBox, overlay) {
-    infoBox.update({ title: 'Satellite Explorer', description: 'Browse different satellite layers.' });
+    const selected = map.selectedSatelliteKey || Object.keys(SATELLITE_LAYERS)[0];
+
+    // the control will update the info box when setting the layer
 
     if (map.satelliteControl) {
         map.removeControl(map.satelliteControl);
     }
 
-    map.satelliteControl = new L.Control.SatelliteLayers();
+    map.satelliteControl = new L.Control.SatelliteLayers({ infoBox, selected });
     map.addControl(map.satelliteControl);
 }
 
