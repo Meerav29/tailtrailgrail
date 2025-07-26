@@ -8,6 +8,11 @@ const SATELLITE_LAYERS = {
         name: 'USGS Imagery',
         url: 'https://basemap.nationalmap.gov/ArcGIS/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}',
         attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">USGS</a>'
+    },
+    sentinel: {
+        name: 'Sentinel-2 Cloudless',
+        url: 'https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/{z}/{y}/{x}.jpg',
+        attribution: '&copy; <a href="https://s2maps.eu">EOX IT Services GmbH</a>'
     }
 };
 
@@ -23,9 +28,9 @@ L.Control.SatelliteLayers = L.Control.extend({
     },
 
     onAdd: function(map) {
-        const container = L.DomUtil.create('div', 'leaflet-bar p-2 rounded bg-gray-800 bg-opacity-80');
+        const container = L.DomUtil.create('div', 'leaflet-bar p-2 rounded-lg bg-gray-800 bg-opacity-80');
         L.DomEvent.disableClickPropagation(container);
-        const select = L.DomUtil.create('select', 'text-black p-1 rounded', container);
+        const select = L.DomUtil.create('select', 'bg-gray-700 text-gray-100 p-2 rounded-lg transition-colors hover:bg-gray-600', container);
 
         for (const key in SATELLITE_LAYERS) {
             const opt = L.DomUtil.create('option', '', select);
