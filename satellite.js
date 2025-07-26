@@ -1,4 +1,7 @@
 const SATELLITE_LAYERS = {
+    none: {
+        name: 'Standard View'
+    },
     esri: {
         name: 'Esri World Imagery',
         url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -39,12 +42,25 @@ L.Control.SatelliteLayers = L.Control.extend({
         }
 
         const setLayer = (key) => {
-            if (map.satelliteLayer) map.removeLayer(map.satelliteLayer);
+            if (map.satelliteLayer) {
+                map.removeLayer(map.satelliteLayer);
+                map.satelliteLayer = null;
+            }
+
+            map.selectedSatelliteKey = key;
+
+            if (key === 'none') {
+                map.satelliteProviderName = null;
+                if (this.options.infoBox) {
+                    this.options.infoBox.update({ title: 'Satellite Explorer', description: 'Layer: None' });
+                }
+                return;
+            }
+
             const info = SATELLITE_LAYERS[key];
             map.satelliteLayer = L.tileLayer(info.url, { attribution: info.attribution });
             map.satelliteLayer.addTo(map);
 
-            map.selectedSatelliteKey = key;
             map.satelliteProviderName = info.name;
             if (this.options.infoBox) {
                 this.options.infoBox.update({ title: 'Satellite Explorer', description: 'Layer: ' + info.name });
