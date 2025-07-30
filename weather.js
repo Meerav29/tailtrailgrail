@@ -1,4 +1,4 @@
-const OPENWEATHERMAP_API_KEY = '';
+import { OPENWEATHERMAP_API_KEY } from './config.js';
 
 function fetchWeather(lat, lon) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;

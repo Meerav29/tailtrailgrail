@@ -24,10 +24,10 @@ Map Dash is a small demo application that showcases several map-based dashboards
 
 ## Providing an OpenWeatherMap API Key
 
-Cloud imagery is optional. If you would like to enable it, edit `weather.js` and set `OPENWEATHERMAP_API_KEY` to your OpenWeatherMap API key:
+Cloud imagery is optional. If you would like to enable it, edit `config.js` and set `OPENWEATHERMAP_API_KEY` to your OpenWeatherMap API key:
 
 ```javascript
-const OPENWEATHERMAP_API_KEY = 'YOUR_KEY_HERE';
+export const OPENWEATHERMAP_API_KEY = 'YOUR_KEY_HERE';
 ```
 
 Without an API key the weather dashboard still works but the cloud layer will be disabled.
@@ -36,6 +36,7 @@ Without an API key the weather dashboard still works but the cloud layer will be
 
 - `index.html` – main page with all UI controls and the Leaflet map setup.
 - `weather.js` – handles the real-time weather dashboard and optional cloud overlay.
+- `config.js` – stores your OpenWeatherMap API key used by `weather.js`.
 - `aqi.js` – logic for the air quality dashboard.
 - `storm.js` – fetches and displays storm alerts from the National Weather Service.
 - `satellite.js` – adds a layer selector for various satellite imagery providers.
