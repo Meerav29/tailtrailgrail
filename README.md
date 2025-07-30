@@ -55,4 +55,4 @@ This project relies on the following services and libraries:
 
 ## License
 
-This repository does not currently include a license file. Please contact the author if you intend to use this code beyond personal experiments.
+This project is licensed under the [MIT License](LICENSE).
