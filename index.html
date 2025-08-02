@@ -138,6 +138,14 @@
                     </svg>
                     <span>Real-Time Weather</span>
                 </button>
+                <!-- Precipitation Map -->
+                <button class="dashboard-btn flex items-center w-full p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-left">
+                    <!-- Raindrop Icon -->
+                    <svg class="w-6 h-6 mr-3 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25s-5.25 5.034-5.25 9.25a5.25 5.25 0 0010.5 0c0-4.216-5.25-9.25-5.25-9.25z" />
+                    </svg>
+                    <span>Precipitation Map</span>
+                </button>
                 <!-- Satellite Explorer -->
                 <button class="dashboard-btn flex items-center w-full p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-left">
                     <!-- Satellite Dish Icon -->
@@ -183,6 +191,7 @@
     </footer>
 
     <script type="module" src="weather.js"></script>
+    <script type="module" src="precipitation.js"></script>
     <script src="aqi.js"></script>
     <script src="storm.js"></script>
     <script src="satellite.js"></script>
@@ -306,6 +315,9 @@
                 if (dashboardTitle === 'Real-Time Weather') {
                     hideOverlay();
                     activateWeather(map, infoBox, overlayEl);
+                } else if (dashboardTitle === 'Precipitation Map') {
+                    hideOverlay();
+                    activatePrecipitation(map, infoBox, overlayEl);
                 } else if (dashboardTitle === 'Air Quality (AQI)') {
                     hideOverlay();
                     activateAQI(map, infoBox, overlayEl);
