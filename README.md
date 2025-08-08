@@ -1,4 +1,4 @@
-# tailtrailgrail
+# Map Dashboard
 
 Map Dash is a small demo application that showcases several map-based dashboards using [Leaflet](https://leafletjs.com/) and a handful of public APIs. The project is fully static and only consists of HTML and JavaScript files, so no build step is required.
 
