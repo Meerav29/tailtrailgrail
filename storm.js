@@ -1,11 +1,14 @@
-// Fetch active weather alerts from the US National Weather Service
-function fetchStormAlerts() {
+export async function fetchStormAlerts() {
     const url = 'https://api.weather.gov/alerts/active';
-    return fetch(url, {
-        headers: {
-            'Accept': 'application/geo+json'
-        }
-    }).then(r => r.json());
+    try {
+        const r = await fetch(url, {
+            headers: { 'Accept': 'application/geo+json' }
+        });
+        return await r.json();
+    } catch (e) {
+        console.error("Storm fetch failed", e);
+        return null;
+    }
 }
 
 function showStormAlerts(map, alerts) {
@@ -18,21 +21,32 @@ function showStormAlerts(map, alerts) {
             weight: 2,
             fillOpacity: 0.2
         },
-        onEachFeature: function(feature, layer) {
+        onEachFeature: function (feature, layer) {
             const props = feature.properties || {};
             const event = props.event || 'Alert';
             const headline = props.headline || '';
             layer.bindPopup(`<strong>${event}</strong><br>${headline}`);
         }
-    }).addTo(map);
+    });
 }
 
-function toRad(deg) {
-    return deg * (Math.PI / 180);
+export function toggleStormLayer(map, show, alertsData) {
+    if (alertsData) {
+        showStormAlerts(map, alertsData);
+    }
+
+    if (!map.stormLayer) return;
+    if (show) {
+        if (!map.hasLayer(map.stormLayer)) map.stormLayer.addTo(map);
+    } else {
+        if (map.hasLayer(map.stormLayer)) map.removeLayer(map.stormLayer);
+    }
 }
 
+// Helper functions for distance calc
+function toRad(deg) { return deg * (Math.PI / 180); }
 function haversineDistance(lat1, lon1, lat2, lon2) {
-    const R = 3958.8; // Radius of Earth in miles
+    const R = 3958.8;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
     const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
@@ -44,25 +58,14 @@ function getFeatureCoordinates(feature) {
     const geom = feature.geometry;
     if (!geom) return [];
     const coords = [];
-
     function pushCoord(c) {
-        if (Array.isArray(c) && c.length >= 2) {
-            coords.push([c[1], c[0]]); // [lat, lon]
-        }
+        if (Array.isArray(c) && c.length >= 2) coords.push([c[1], c[0]]);
     }
-
-    if (geom.type === 'Point') {
-        pushCoord(geom.coordinates);
-    } else if (geom.type === 'Polygon') {
-        geom.coordinates.forEach(ring => ring.forEach(pushCoord));
-    } else if (geom.type === 'MultiPolygon') {
-        geom.coordinates.forEach(poly => poly.forEach(ring => ring.forEach(pushCoord)));
-    } else if (geom.type === 'LineString') {
-        geom.coordinates.forEach(pushCoord);
-    } else if (geom.type === 'MultiLineString') {
-        geom.coordinates.forEach(line => line.forEach(pushCoord));
-    }
-
+    if (geom.type === 'Point') pushCoord(geom.coordinates);
+    else if (geom.type === 'Polygon') geom.coordinates.forEach(r => r.forEach(pushCoord));
+    else if (geom.type === 'MultiPolygon') geom.coordinates.forEach(p => p.forEach(r => r.forEach(pushCoord)));
+    else if (geom.type === 'LineString') geom.coordinates.forEach(pushCoord);
+    else if (geom.type === 'MultiLineString') geom.coordinates.forEach(l => l.forEach(pushCoord));
     return coords;
 }
 
@@ -76,7 +79,7 @@ function distanceToFeature(feature, lat, lon) {
     return min;
 }
 
-function nearestAlertDistance(features, lat, lon) {
+export function nearestAlertDistance(features, lat, lon) {
     let min = Infinity;
     for (const feature of features) {
         const d = distanceToFeature(feature, lat, lon);
@@ -85,55 +88,24 @@ function nearestAlertDistance(features, lat, lon) {
     return min;
 }
 
-function activateStormTracker(map, infoBox, overlay) {
-    const center = map.getCenter();
-    fetchStormAlerts()
-        .then(data => {
-            const features = data.features || [];
-            if (features.length > 0) {
-                showStormAlerts(map, features);
+export async function checkStormAlerts(map, email, distance) {
+    try {
+        const data = await fetchStormAlerts();
+        const features = data.features || [];
+        if (features.length === 0) return null;
 
-                const nearest = nearestAlertDistance(features, center.lat, center.lng);
+        const center = map.getCenter();
+        const nearest = nearestAlertDistance(features, center.lat, center.lng);
 
-                let status = '✅ No Threat';
-                let desc = 'No storm alerts within a 50 mile radius.';
-
-                if (nearest <= 25) {
-                    status = '❗ High Alert';
-                    desc = `Nearest storm alert is ${nearest.toFixed(1)} miles away.`;
-                } else if (nearest <= 50) {
-                    status = '⚠️ Low Threat';
-                    desc = `Nearest storm alert is ${nearest.toFixed(1)} miles away.`;
-                }
-
-                infoBox.update({
-                    title: 'Storm Tracker',
-                    description: `${status} ${desc}`
-                });
-
-                if (overlay) {
-                    overlay.innerHTML = `${status} ${desc}`;
-                    overlay.classList.remove('hidden');
-                }
-            } else {
-                infoBox.update({ title: 'Storm Tracker', description: 'No active alerts found.' });
-                if (overlay) {
-                    overlay.innerHTML = 'No active alerts found.';
-                    overlay.classList.remove('hidden');
-                }
-            }
-        })
-        .catch(() => {
-            infoBox.update({ title: 'Storm Tracker', description: 'Failed to load storm data.' });
-            if (overlay) {
-                overlay.innerHTML = 'Failed to load storm data.';
-                overlay.classList.remove('hidden');
-            }
-        });
-
-    if (overlay) {
-        overlay.classList.remove('hidden');
+        if (nearest <= distance) {
+            return {
+                triggered: true,
+                message: `High Alert! Storm detected ${nearest.toFixed(1)} miles away.`,
+                detail: `Alert sent to ${email} (simulated).`
+            };
+        }
+    } catch (e) {
+        console.error("Alert check failed", e);
     }
+    return null;
 }
-
-window.activateStormTracker = activateStormTracker;
