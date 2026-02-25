@@ -17,6 +17,12 @@ const SATELLITE_LAYERS = {
         attribution: '&copy; <a href="https://s2maps.eu">EOX IT Services GmbH</a>',
         maxNativeZoom: 18,
         updateWhenIdle: true
+    },
+    osm: {
+        name: 'OpenStreetMap',
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        subdomains: 'abc'
     }
 };
 
@@ -42,6 +48,7 @@ export function setSatelliteLayer(map, type) {
     const options = { attribution: info.attribution };
     if (info.maxNativeZoom) options.maxNativeZoom = info.maxNativeZoom;
     if (info.updateWhenIdle) options.updateWhenIdle = info.updateWhenIdle;
+    if (info.subdomains) options.subdomains = info.subdomains;
     map.satelliteLayer = L.tileLayer(info.url, options);
     map.satelliteLayer.addTo(map);
 }

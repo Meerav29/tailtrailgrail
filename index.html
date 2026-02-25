@@ -210,6 +210,9 @@
                         <button
                             class="text-xs text-left px-3 py-2 rounded hover:bg-gray-700 text-white transition-colors"
                             onclick="window.setMapStyle('sentinel')">Sentinel-2</button>
+                        <button
+                            class="text-xs text-left px-3 py-2 rounded hover:bg-gray-700 text-white transition-colors"
+                            onclick="window.setMapStyle('osm')">OpenStreetMap</button>
                     </div>
                 </div>
             </div>
@@ -295,6 +298,7 @@
                 attribution: '&copy; CartoDB'
             }).addTo(state.map);
             state.map._cartoBaseLayer = baseLayer;
+            setSatelliteLayer(state.map, 'osm');
 
             // --- OWM KEY GUARD ---
             // Disable weather and precip toggle buttons when no API key is configured
