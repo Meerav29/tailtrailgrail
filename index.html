@@ -207,6 +207,9 @@
                         <button
                             class="text-xs text-left px-3 py-2 rounded hover:bg-gray-700 text-white transition-colors"
                             onclick="window.setMapStyle('usgs')">USGS Topo</button>
+                        <button
+                            class="text-xs text-left px-3 py-2 rounded hover:bg-gray-700 text-white transition-colors"
+                            onclick="window.setMapStyle('sentinel')">Sentinel-2</button>
                     </div>
                 </div>
             </div>
@@ -257,8 +260,9 @@
     <script type="module">
         import { getWeatherData, toggleCloudLayer } from './weather.js';
         import { togglePrecipitationLayer } from './precipitation.js';
+        import { OPENWEATHERMAP_API_KEY } from './config.js';
         import { fetchStormAlerts, toggleStormLayer, nearestAlertDistance, checkStormAlerts } from './storm.js';
-        import { getAQIData, toggleAQILayer, getAQIColor } from './aqi.js';
+        import { getAQIData, toggleAQILayer, getAQIColor, getNearestHourIndex } from './aqi.js';
         import { setSatelliteLayer } from './satellite.js';
 
         try {
@@ -290,6 +294,19 @@
                 maxZoom: 19,
                 attribution: '&copy; CartoDB'
             }).addTo(state.map);
+            state.map._cartoBaseLayer = baseLayer;
+
+            // --- OWM KEY GUARD ---
+            // Disable weather and precip toggle buttons when no API key is configured
+            if (!OPENWEATHERMAP_API_KEY) {
+                ['weather', 'precip'].forEach(key => {
+                    const btn = document.querySelector(`.layer-toggle[data-layer="${key}"]`);
+                    if (!btn) return;
+                    btn.disabled = true;
+                    btn.classList.add('opacity-30', 'cursor-not-allowed');
+                    btn.title = `${key === 'weather' ? 'Weather overlay' : 'Precipitation overlay'} requires an OpenWeatherMap API key in config.js`;
+                });
+            }
 
             // --- WIDGET SYSTEM ---
             function createWidget(id, title, colorClass, contentHTML) {
@@ -363,9 +380,9 @@
                 const data = await getAQIData(center.lat, center.lng);
 
                 if (data && data.hourly) {
-                    // simple check: just take index 0 or nearest
-                    const aqi = data.hourly.us_aqi[0];
-                    const pm25 = data.hourly.pm2_5[0];
+                    const idx = getNearestHourIndex(data.hourly.time);
+                    const aqi = data.hourly.us_aqi[idx];
+                    const pm25 = data.hourly.pm2_5[idx];
 
                     // Render layer marker
                     toggleAQILayer(state.map, true, center.lat, center.lng, aqi);

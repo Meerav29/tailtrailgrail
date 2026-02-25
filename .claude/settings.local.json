@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/5/12/9\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://basemap.nationalmap.gov/ArcGIS/rest/services/USGSImageryOnly/MapServer/tile/5/12/9\")",
+      "Bash(curl -s -I \"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/5/12/9\")",
+      "Bash(curl -s -I \"https://basemap.nationalmap.gov/ArcGIS/rest/services/USGSImageryOnly/MapServer/tile/5/12/9\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://basemap.nationalmap.gov/ArcGIS/rest/services/USGSImageryOnly/MapServer/tile/16/24750/20053\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/16/24750/20053\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/17/49501/40107\")",
+      "Bash(git -C /c/Users/meera/AstroProjects/tailtrailgrail log --oneline)",
+      "Bash(git -C /c/Users/meera/AstroProjects/tailtrailgrail show 97689a6 -- satellite.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless-2020_3857/default/g/5/12/9.jpg\")"
+    ]
+  }
+}
